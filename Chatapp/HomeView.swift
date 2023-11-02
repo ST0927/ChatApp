@@ -76,8 +76,8 @@ struct Chat: View {
                             do {
                                 // OpenAIの設定
                                 let config = Configuration(
-                                    organizationId: "org-eWKJ3cXychFNfqig8QpaymWY",
-                                    apiKey: "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"
+                                    organizationId: "",
+                                    apiKey: ""
                                 )
                                 let openAI = OpenAI(config)
                                 let chatParameters = ChatParameters(model: "gpt-3.5-turbo", messages: chat)
