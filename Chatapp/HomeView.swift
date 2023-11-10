@@ -25,7 +25,8 @@ struct Chat: View {
     //どっかでpublishにする必要ありそう
      @State var tapNum:Int = 0
      @EnvironmentObject var timerController: TimerCount
-    
+     @EnvironmentObject var Q: QuestionList
+
     // チャット画面のビューレイアウト
     var body: some View {
         ZStack {
@@ -90,6 +91,7 @@ struct Chat: View {
                                 isCompleting = false
                                 // AIのレスポンスをチャットに追加
                                 chat.append(ChatMessage(role: .assistant, content: chatCompletion.choices[0].message.content))
+//                                chat.append(ChatMessage(role: .assistant, content: Q.Q1))
                             } catch {
                                 print("ERROR DETAILS - \(error)")
                             }
@@ -124,21 +126,38 @@ struct MessageView: View {
                 AvatarView(imageName: "avatar")
                     .padding(.trailing, 8)
             }
-            VStack(alignment: .leading, spacing: 4) {
-                // メッセージのテキストを表示
-                Text(message.content)
-                    .font(.system(size: 14)) // フォントサイズを調整
-                    .foregroundColor(message.role.rawValue == "user" ? .white : .black)
-                    .padding(10)
-                    // ユーザーとAIのメッセージで背景色を変更
-                    .background(message.role.rawValue == "user" ? Color(#colorLiteral(red: 0.2078431373, green: 0.7647058824, blue: 0.3450980392, alpha: 1)) : Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
-                    .cornerRadius(20) // 角を丸くする
+            VStack(alignment: .leading, spacing: 0) {
+                if message.role.rawValue == "user" {
+                    Text(message.content)
+                        .font(.system(size: 14))
+                        .padding(10)
+                        .background(Color(#colorLiteral(red: 0.2078431373, green: 0.7647058824, blue: 0.3450980392, alpha: 1)))
+                        .cornerRadius(10)
+                } else {
+                    Text(message.content)
+                        .frame(width: 100)
+                        .font(.system(size: 14))
+                        .padding(10)
+                        .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
+                    Button(action: {
+                        
+                    }){
+                        Text("A")
+                            .frame(width: 100)
+                            .padding(10)
+                            .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
+                    }
+                    Button(action: {
+                        
+                    }){
+                        Text("B")
+                            .frame(width: 100)
+                            .padding(10)
+                            .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
+                    }
+                }
             }
             .padding(.vertical, 5)
-            // ユーザーのメッセージの場合は右側にスペースを追加
-            if message.role.rawValue != "user" {
-                Spacer()
-            }
         }
         .padding(.horizontal)
     }
