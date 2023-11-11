@@ -30,8 +30,7 @@ struct Chat: View {
     // チャット画面のビューレイアウト
     var body: some View {
         ZStack {
-            Logger()
-                .environmentObject(TimerCount())
+            
             //ここから
             VStack {
                 // スクロール可能なメッセージリストの表示
@@ -109,6 +108,8 @@ struct Chat: View {
                 .padding(.bottom, 8) // 下部のパディングを調整
             }
         }
+        Logger()
+            .environmentObject(TimerCount())
             //ここまで
     }
 }
@@ -134,6 +135,16 @@ struct MessageView: View {
                         .background(Color(#colorLiteral(red: 0.2078431373, green: 0.7647058824, blue: 0.3450980392, alpha: 1)))
                         .cornerRadius(10)
                 } else {
+                    HStack(spacing: 0) {
+                        Image("りんご１")
+                            .resizable()
+                            .frame(width: 60, height: 60)
+                            .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
+                        Image("りんご２")
+                            .resizable()
+                            .frame(width: 60, height: 60)
+                            .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
+                    }
                     Text(message.content)
                         .frame(width: 100)
                         .font(.system(size: 14))
