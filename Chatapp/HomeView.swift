@@ -27,10 +27,13 @@ struct Chat: View {
      @EnvironmentObject var timerController: TimerCount
      @EnvironmentObject var Q: QuestionList
 
+
     // チャット画面のビューレイアウト
     var body: some View {
         ZStack {
-            
+
+            Logger()
+                .environmentObject(TimerCount())
             //ここから
             VStack {
                 // スクロール可能なメッセージリストの表示
@@ -90,7 +93,6 @@ struct Chat: View {
                                 isCompleting = false
                                 // AIのレスポンスをチャットに追加
                                 chat.append(ChatMessage(role: .assistant, content: chatCompletion.choices[0].message.content))
-//                                chat.append(ChatMessage(role: .assistant, content: Q.Q1))
                             } catch {
                                 print("ERROR DETAILS - \(error)")
                             }
@@ -107,9 +109,9 @@ struct Chat: View {
                 .padding(.horizontal)
                 .padding(.bottom, 8) // 下部のパディングを調整
             }
+            Logger()
+                .environmentObject(TimerCount())
         }
-        Logger()
-            .environmentObject(TimerCount())
             //ここまで
     }
 }
@@ -117,7 +119,8 @@ struct Chat: View {
 // メッセージのビュー
 struct MessageView: View {
     var message: ChatMessage
-    
+    @EnvironmentObject var Q: QuestionList
+
     var body: some View {
         HStack {
             if message.role.rawValue == "user" {
@@ -136,11 +139,11 @@ struct MessageView: View {
                         .cornerRadius(10)
                 } else {
                     HStack(spacing: 0) {
-                        Image("りんご１")
+                        Image(Q.ImageName[Q.Qcount % Q.ImageName.count])
                             .resizable()
                             .frame(width: 60, height: 60)
                             .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
-                        Image("りんご２")
+                        Image(Q.ImageName[(Q.Qcount % Q.ImageName.count)+1])
                             .resizable()
                             .frame(width: 60, height: 60)
                             .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
