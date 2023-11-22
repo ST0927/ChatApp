@@ -23,15 +23,13 @@ struct Chat: View {
         ChatMessage(role: .system, content:"こんにちは。何かお困りのことがあればおっしゃってください。")
     ]
     //どっかでpublishにする必要ありそう
-     @State var tapNum:Int = 0
+     @State var tapNum: Int = 0
      @EnvironmentObject var timerController: TimerCount
      @EnvironmentObject var Q: QuestionList
-
 
     // チャット画面のビューレイアウト
     var body: some View {
         ZStack {
-
             Logger()
                 .environmentObject(TimerCount())
             //ここから
@@ -46,8 +44,7 @@ struct Chat: View {
                             }
                         }
                     }
-                }
-                .padding(.top)
+                }.padding(.top)
                 // 画面をタップしたときにキーボードを閉じる
                 .onTapGesture {
                     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
@@ -93,6 +90,7 @@ struct Chat: View {
                                 isCompleting = false
                                 // AIのレスポンスをチャットに追加
                                 chat.append(ChatMessage(role: .assistant, content: chatCompletion.choices[0].message.content))
+                                
                             } catch {
                                 print("ERROR DETAILS - \(error)")
                             }
@@ -109,8 +107,6 @@ struct Chat: View {
                 .padding(.horizontal)
                 .padding(.bottom, 8) // 下部のパディングを調整
             }
-            Logger()
-                .environmentObject(TimerCount())
         }
             //ここまで
     }
@@ -120,7 +116,7 @@ struct Chat: View {
 struct MessageView: View {
     var message: ChatMessage
     @EnvironmentObject var Q: QuestionList
-
+    
     var body: some View {
         HStack {
             if message.role.rawValue == "user" {
@@ -139,11 +135,11 @@ struct MessageView: View {
                         .cornerRadius(10)
                 } else {
                     HStack(spacing: 0) {
-                        Image(Q.ImageName[Q.Qcount % Q.ImageName.count])
+                        Image("\(Q.ImageName[Q.Qcount])")
                             .resizable()
                             .frame(width: 60, height: 60)
                             .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
-                        Image(Q.ImageName[(Q.Qcount % Q.ImageName.count)+1])
+                        Image("\(Q.ImageName[Q.Qcount+1])")
                             .resizable()
                             .frame(width: 60, height: 60)
                             .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
@@ -162,7 +158,7 @@ struct MessageView: View {
                             .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
                     }
                     Button(action: {
-                        
+
                     }){
                         Text("B")
                             .frame(width: 100)
