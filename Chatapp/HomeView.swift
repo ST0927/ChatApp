@@ -218,5 +218,5 @@ struct Logger : View {
 }
 
 #Preview {
-    Chat()
+    Chat()　
 }
