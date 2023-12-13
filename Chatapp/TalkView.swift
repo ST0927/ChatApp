@@ -128,9 +128,11 @@ struct Talk: View {
                     }
                 }
             }
-        Logger()
-            .environmentObject(TimerCount())
-        Choice()
+            if start == true {
+                Logger()
+                    .environmentObject(TimerCount())
+                Choice()
+            }
         }
     }
 }
