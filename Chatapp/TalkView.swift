@@ -20,7 +20,7 @@ struct Talk: View {
     
     var body: some View {
         ZStack {
-            Color(red:0.4549,green:0.5804,blue:0.7529,opacity:1.0)
+            Color(red:1.0,green:0.98,blue:0.94)
                 .ignoresSafeArea(edges: [.bottom])
             VStack(alignment: .leading) {
                 ScrollView {
@@ -36,15 +36,6 @@ struct Talk: View {
                                     .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
                                 Button(action: {
                                     start = true
-                                    self.button = "アンケートを始める"
-                                    let db = Firestore.firestore()
-                                    db.collection("messages").addDocument(data: ["text": self.button]) { err in
-                                        if let e = err {
-                                            print(e)
-                                        } else {
-                                            print("sent")
-                                        }
-                                    }
                                 })
                                 {
                                     Text("はい")
@@ -61,7 +52,7 @@ struct Talk: View {
                             
                             HStack {
                                 Spacer()
-                                Text("\(Num): \(history[index].text)")
+                                Text(" \(history[index].text)")
                                     .font(.system(size: 14))
                                     .padding(10)
                                     .background(Color(#colorLiteral(red: 0.2078431373, green: 0.7647058824, blue: 0.3450980392, alpha: 1)))
@@ -69,73 +60,34 @@ struct Talk: View {
                             }.padding(.horizontal)
                             
                             HStack(alignment: .top) {
-                                
                                 AvatarView(imageName: "avatar")
                                     .padding(.trailing, 8)
-
                                 VStack(spacing: 0) {
-                                    
-                                    Text(" A or B ")
+                                    Text("問 \(Num)： 魅力的だと思う画像を選んでください ")
                                         .frame(width: 280)
                                         .font(.system(size: 14))
                                         .padding(10)
                                         .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
                                     HStack(spacing: 0) {
                                         if Num/2 <= (Q.ImageName.count/4) {
-                                            Image(Q.ImageName[Num*2 - 2])
+                                            Image(""/*Q.ImageName[Num*2 - 2]*/)
                                                 .resizable()
                                                 .frame(width: 150, height: 150)
                                                 .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
-                                            Image(Q.ImageName[Num*2 - 1])
+                                                .background(Color.white)
+                                            Image(""/*Q.ImageName[Num*2 - 1]*/)
                                                 .resizable()
                                                 .frame(width: 150, height: 150)
                                                 .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
+                                                .background(Color.white)
                                         }
-                                    }
-//                                    HStack(spacing: 0) {
-//                                        Button(action: {
-//                                            self.button = "A" //ボタンテキストの中身引っ張りたい
-//                                            let db = Firestore.firestore()
-//                                            db.collection("messages").addDocument(data: ["text": self.button]) { err in
-//                                                if let e = err {
-//                                                    print(e)
-//                                                } else {
-//                                                    print("sent")
-//                                                }
-//                                            }
-//                                        })
-//                                        {
-//                                            Text("A")
-//                                                .frame(width: 150)
-//                                                .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
-//                                        }.disabled(isButtonDisabled)
-//                                        Button(action: {
-//                                            self.button = "B"
-//                                            let db = Firestore.firestore()
-//                                            db.collection("messages").addDocument(data: ["text": self.button]) { err in
-//                                                if let e = err {
-//                                                    print(e)
-//                                                } else {
-//                                                    print("sent")
-//                                                }
-//                                            }
-//                                        }){
-//                                            Text("B")
-//                                                .frame(width: 150)
-//                                                .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
-//                                        }
-//                                    }
-                                    .disabled(isButtonDisabled)
+                                    }.disabled(isButtonDisabled)
                                 }
                                 Spacer()
                             }.padding(.horizontal)
-                            
                         }.padding(.vertical, 5)
                     }
-                    
-                    
                 }
-                    
             }.keyboardObserving().onAppear  {
                 let db = Firestore.firestore()
                 db.collection("messages").addSnapshotListener {
@@ -152,6 +104,7 @@ struct Talk: View {
                     }
                 }
             }
+            //ボタン入れるならここじゃない？
             VStack {
                 Spacer()
                 HStack(spacing:0) {
@@ -175,14 +128,70 @@ struct Talk: View {
                     }
                 }
             }
+        Logger()
+            .environmentObject(TimerCount())
+        Choice()
         }
+    }
+}
+
+struct Logger : View {
+    @State var tapNum:Int = 0
+    @EnvironmentObject var timerController: TimerCount
+    var body: some View {
+        //透明なビューを設置してタップ回数のカウント
+        Color.clear
+            .contentShape(Rectangle())
+            .onTapGesture {
+                tapNum += 1
+                //リセットない？TimerCoutの方でfunc作ればできそう
+                timerController.count = 0
+                timerController.start(0.1)
+            }
+        //動作確認用
+        HStack {
+            VStack {
+                Text("タップ回数：\(tapNum)")
+                Text("タップ間隔：\(timerController.count)")
+            }
+        }
+    }
+}
+
+struct Choice : View {
+    var body: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                Button(action: {
+                    
+                })
+                {
+                    Text("左の画像")
+                        .frame(width: 50)
+                        .padding(10)
+                        .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
+                        .cornerRadius(10)
+                }
+                Button(action: {
+                    
+                })
+                {
+                    Text("右の画像")
+                        .frame(width: 50)
+                        .padding(10)
+                        .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
+                        .cornerRadius(10)
+                }
+            }.padding(.bottom, 55)
+        }.keyboardObserving()
     }
 }
 
 struct Message : Identifiable {
     var id = UUID()
     var text: String
-    
     init(data: [String: Any]) {
         self.text = data["text"] as! String
     }
