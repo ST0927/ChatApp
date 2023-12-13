@@ -131,7 +131,6 @@ struct Talk: View {
             if start == true {
                 Logger()
                     .environmentObject(TimerCount())
-                Choice()
             }
         }
     }
@@ -157,17 +156,22 @@ struct Logger : View {
                 Text("タップ間隔：\(timerController.count)")
             }
         }
+        Choice(tapNum: $tapNum)
     }
 }
 
 struct Choice : View {
+    @Binding var tapNum:Int
+    @EnvironmentObject var timerController: TimerCount
     var body: some View {
         VStack {
             Spacer()
             HStack {
                 Spacer()
                 Button(action: {
-                    
+                    tapNum += 1
+                    timerController.count = 0
+                    timerController.start(0.1)
                 })
                 {
                     Text("左の画像")
@@ -177,7 +181,9 @@ struct Choice : View {
                         .cornerRadius(10)
                 }
                 Button(action: {
-                    
+                    tapNum += 1
+                    timerController.count = 0
+                    timerController.start(0.1)
                 })
                 {
                     Text("右の画像")
