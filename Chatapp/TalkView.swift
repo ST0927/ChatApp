@@ -14,8 +14,8 @@ struct Talk: View {
     @State var history: [Message] = []
     @State var button =  ""
     @EnvironmentObject var Q: QuestionList
-    @State private var isButtonDisabled: Bool = false
-    @State private var bot: Bool = false
+    @State var isButtonDisabled: Bool = false
+    @State var bot: Bool = false
     @State var start:Bool = false
     
     var body: some View {
@@ -49,7 +49,6 @@ struct Talk: View {
                     } else {
                         ForEach(history.indices, id: \.self) { index in
                             let Num = index+1 //indexがIntじゃないから数字を足す
-                            
                             HStack {
                                 Spacer()
                                 Text(" \(history[index].text)")
@@ -87,6 +86,9 @@ struct Talk: View {
                             }.padding(.horizontal)
                         }.padding(.vertical, 5)
                     }
+                }.padding(.bottom, 55)
+                .onTapGesture {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 }
             }.keyboardObserving().onAppear  {
                 let db = Firestore.firestore()
@@ -169,6 +171,15 @@ struct Choice : View {
             HStack {
                 Spacer()
                 Button(action: {
+                    let db = Firestore.firestore()
+                    db.collection("messages").addDocument(data: ["text": "左の画像"]) { err in
+                        if let e = err {
+                            print(e)
+                        } else {
+                            print("sent")
+                        }
+                    }
+                    
                     tapNum += 1
                     timerController.count = 0
                     timerController.start(0.1)
