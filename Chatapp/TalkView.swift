@@ -17,6 +17,8 @@ struct Talk: View {
     @State var isButtonDisabled: Bool = false
     @State var bot: Bool = false
     @State var start:Bool = false
+    @State var delivery:Bool = false
+    
     
     var body: some View {
         ZStack {
@@ -45,7 +47,7 @@ struct Talk: View {
                                 }.disabled(isButtonDisabled)
                             }
                             Spacer()
-                        }
+                        }.padding(.top, 10)
                     } else {
                         ForEach(history.indices, id: \.self) { index in
                             let Num = index+1 //indexがIntじゃないから数字を足す
@@ -87,6 +89,7 @@ struct Talk: View {
                         }.padding(.vertical, 5)
                     }
                 }.padding(.bottom, 55)
+                    .padding(.top, 40)
                 .onTapGesture {
                     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 }
@@ -110,7 +113,7 @@ struct Talk: View {
             VStack {
                 Spacer()
                 HStack(spacing:0) {
-                    TextField("メッセージ", text: $message)
+                    TextField("　メッセージ", text: $message)
                         .frame(height: 55)
                         .background(Color.white)
                     Button(action: {
@@ -129,6 +132,24 @@ struct Talk: View {
                             .background(Color.white)
                     }
                 }
+            }
+            VStack {
+                HStack(spacing: 0) {
+                    Button(action: {
+                        
+                    })
+                    {
+                        Image(systemName:"chevron.backward")
+                            .frame(width: 40,height: 40)
+                            .background(Color(red:1.0,green:0.98,blue:0.94, opacity: 0.8))
+                    }
+                    Rectangle()
+                        .fill(Color(red:1.0,green:0.98,blue:0.94, opacity: 0.8))
+                        .frame(height:41)
+                        
+                    Spacer()
+                }
+                Spacer()
             }
             if start == true {
                 Logger()
