@@ -89,7 +89,6 @@ struct Talk: View {
                         }.padding(.vertical, 5)
                     }
                 }.padding(.bottom, 55)
-                    .padding(.top, 40)
                 .onTapGesture {
                     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 }
@@ -132,24 +131,6 @@ struct Talk: View {
                             .background(Color.white)
                     }
                 }
-            }
-            VStack {
-                HStack(spacing: 0) {
-                    Button(action: {
-                        
-                    })
-                    {
-                        Image(systemName:"chevron.backward")
-                            .frame(width: 40,height: 40)
-                            .background(Color(red:1.0,green:0.98,blue:0.94, opacity: 0.8))
-                    }
-                    Rectangle()
-                        .fill(Color(red:1.0,green:0.98,blue:0.94, opacity: 0.8))
-                        .frame(height:41)
-                        
-                    Spacer()
-                }
-                Spacer()
             }
             if start == true {
                 Logger()
