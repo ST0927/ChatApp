@@ -18,8 +18,7 @@ struct Talk: View {
     @State var bot: Bool = false
     @State var start:Bool = false
     @State var delivery:Bool = false
-    
-    
+
     
     var body: some View {
         ZStack {
