@@ -20,6 +20,7 @@ struct Talk: View {
     @State var delivery:Bool = false
     
     
+    
     var body: some View {
         ZStack {
             Color(red:1.0,green:0.98,blue:0.94)
@@ -141,15 +142,18 @@ struct Talk: View {
 }
 
 struct Logger : View {
-    @State var tapNum:Int = 0
     @EnvironmentObject var timerController: TimerCount
+    @State var tapNum:Int = 0
+    @State var LeftChoice:Int = 0
+    @State var RightChoice:Int = 0
+    
+//    @State var svrollOffset: CGFloat = 0
     var body: some View {
         //透明なビューを設置してタップ回数のカウント
         Color.clear
             .contentShape(Rectangle())
             .onTapGesture {
                 tapNum += 1
-                //リセットない？TimerCoutの方でfunc作ればできそう
                 timerController.count = 0
                 timerController.start(0.1)
             }
@@ -158,15 +162,20 @@ struct Logger : View {
             VStack {
                 Text("タップ回数：\(tapNum)")
                 Text("タップ間隔：\(timerController.count)")
+                Text("左を選んだ回数：\(LeftChoice)")
+                Text("右を選んだ回数：\(RightChoice)")
             }
         }
-        Choice(tapNum: $tapNum)
+        Choice(tapNum: $tapNum, LeftChoice: $LeftChoice, RightChoice: $RightChoice)
     }
 }
 
 struct Choice : View {
-    @Binding var tapNum:Int
     @EnvironmentObject var timerController: TimerCount
+    @Binding var tapNum:Int
+    @Binding var LeftChoice:Int
+    @Binding var RightChoice:Int
+    
     var body: some View {
         VStack {
             Spacer()
@@ -185,6 +194,9 @@ struct Choice : View {
                     tapNum += 1
                     timerController.count = 0
                     timerController.start(0.1)
+                    
+                    LeftChoice += 1
+                    
                 })
                 {
                     Text("左の画像")
@@ -197,6 +209,8 @@ struct Choice : View {
                     tapNum += 1
                     timerController.count = 0
                     timerController.start(0.1)
+                    
+                    RightChoice += 1
                 })
                 {
                     Text("右の画像")
