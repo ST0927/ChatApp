@@ -8,17 +8,20 @@
 import SwiftUI
 import FirebaseFirestore
 import KeyboardObserving
+import Combine
 
 struct Talk: View {
     @State var message = ""
     @State var history: [Message] = []
-    @State var button =  ""
+//    @State var button =  ""
     @EnvironmentObject var Q: QuestionList
     @State var isButtonDisabled: Bool = false
-    @State var bot: Bool = false
+//    @State var bot: Bool = false
+    //アンケートを開始するかを決める変数
     @State var start:Bool = false
-    @State var delivery:Bool = false
-
+//    @State var delivery:Bool = false
+    
+    
     
     var body: some View {
         ZStack {
@@ -108,7 +111,7 @@ struct Talk: View {
                     }
                 }
             }
-            //ボタン入れるならここじゃない？
+
             VStack {
                 Spacer()
                 HStack(spacing:0) {
@@ -174,6 +177,8 @@ struct Choice : View {
     @Binding var tapNum:Int
     @Binding var LeftChoice:Int
     @Binding var RightChoice:Int
+    @State var collect:Bool = false
+    
     
     var body: some View {
         VStack {
@@ -181,20 +186,11 @@ struct Choice : View {
             HStack {
                 Spacer()
                 Button(action: {
-                    let db = Firestore.firestore()
-                    db.collection("messages").addDocument(data: ["text": "左の画像"]) { err in
-                        if let e = err {
-                            print(e)
-                        } else {
-                            print("sent")
-                        }
-                    }
-                    
+                    Firestore.firestore().collection("messages").addDocument(data: ["text": "左"])
                     tapNum += 1
+                    LeftChoice += 1
                     timerController.count = 0
                     timerController.start(0.1)
-                    
-                    LeftChoice += 1
                     
                 })
                 {
@@ -206,10 +202,10 @@ struct Choice : View {
                 }
                 Button(action: {
                     tapNum += 1
+                    RightChoice += 1
                     timerController.count = 0
                     timerController.start(0.1)
-                    
-                    RightChoice += 1
+
                 })
                 {
                     Text("右の画像")
