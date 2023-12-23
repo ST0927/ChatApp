@@ -13,14 +13,11 @@ import Combine
 struct Talk: View {
     @State var message = ""
     @State var history: [Message] = []
-//    @State var button =  ""
     @EnvironmentObject var Q: QuestionList
+    @EnvironmentObject var timerController: TimerCount
     @State var isButtonDisabled: Bool = false
-//    @State var bot: Bool = false
     //アンケートを開始するかを決める変数
     @State var start:Bool = false
-//    @State var delivery:Bool = false
-    
     
     
     var body: some View {
@@ -145,6 +142,7 @@ struct Talk: View {
 
 struct Logger : View {
     @EnvironmentObject var timerController: TimerCount
+    @EnvironmentObject var timer: TimeCount
     @State var tapNum:Int = 0
     @State var LeftChoice:Int = 0
     @State var RightChoice:Int = 0
@@ -156,7 +154,9 @@ struct Logger : View {
             .contentShape(Rectangle())
             .onTapGesture {
                 tapNum += 1
-                timerController.count = 0
+//                Task {
+//                    try await
+//                }
                 timerController.start(0.1)
             }
         //動作確認用
@@ -164,6 +164,7 @@ struct Logger : View {
             VStack {
                 Text("タップ回数：\(tapNum)")
                 Text("タップ間隔：\(timerController.count)")
+//                Text("タップ間隔：\(timer.count)")
                 Text("左を選んだ回数：\(LeftChoice)")
                 Text("右を選んだ回数：\(RightChoice)")
             }
@@ -173,12 +174,24 @@ struct Logger : View {
 }
 
 struct Choice : View {
+    
     @EnvironmentObject var timerController: TimerCount
+    @EnvironmentObject var timer: TimeCount
     @Binding var tapNum:Int
     @Binding var LeftChoice:Int
     @Binding var RightChoice:Int
     @State var collect:Bool = false
     
+    func collection() async throws {
+        let db = Firestore.firestore()
+        db.collection("messages").addDocument(data: ["text": "左"]) {err in
+            if let e = err {
+                print(e)
+            } else {
+                print("sent")
+            }
+        }
+    }
     
     var body: some View {
         VStack {
@@ -186,12 +199,17 @@ struct Choice : View {
             HStack {
                 Spacer()
                 Button(action: {
-                    Firestore.firestore().collection("messages").addDocument(data: ["text": "左"])
                     tapNum += 1
                     LeftChoice += 1
-                    timerController.count = 0
                     timerController.start(0.1)
-                    
+                    Task {
+                        do {
+                            try await Task.sleep(nanoseconds:3_000_000_000)
+                            try await collection()
+                        } catch {
+                          print("Error:\(error)")
+                        }
+                    }
                 })
                 {
                     Text("左の画像")
@@ -203,8 +221,11 @@ struct Choice : View {
                 Button(action: {
                     tapNum += 1
                     RightChoice += 1
-                    timerController.count = 0
                     timerController.start(0.1)
+//                    Task {
+//                        try await
+//                    }
+                    
 
                 })
                 {
