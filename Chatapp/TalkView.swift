@@ -8,7 +8,7 @@
 import SwiftUI
 import FirebaseFirestore
 import KeyboardObserving
-import Combine
+import Combine 
 
 struct Talk: View {
     @State var message = ""
