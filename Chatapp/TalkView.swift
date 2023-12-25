@@ -8,7 +8,9 @@
 import SwiftUI
 import FirebaseFirestore
 import KeyboardObserving
-import Combine 
+import Combine
+import UIKit
+import Combine
 
 struct Talk: View {
     @State var message = ""
@@ -142,73 +144,86 @@ struct Talk: View {
 
 struct Logger : View {
     @EnvironmentObject var timerController: TimerCount
-    @EnvironmentObject var timer: TimeCount
     @State var tapNum:Int = 0
     @State var LeftChoice:Int = 0
     @State var RightChoice:Int = 0
-    
-//    @State var svrollOffset: CGFloat = 0
+    @State var TimeCount:Double = 0
+    @State var time: AnyCancellable?
+
     var body: some View {
         //透明なビューを設置してタップ回数のカウント
         Color.clear
             .contentShape(Rectangle())
             .onTapGesture {
                 tapNum += 1
-//                Task {
-//                    try await
-//                }
+                timerController.count=0
                 timerController.start(0.1)
+                
+                TimeCount = 0
+                if let _timer = time{
+                    _timer.cancel()
+                }
+                time = Timer.publish(every: 0.1, on: .main, in: .common)
+                    .autoconnect()
+                    .receive(on: DispatchQueue.main)
+                    .sink { _ in
+                        TimeCount += 0.1
+                    }
+
             }
+
         //動作確認用
         HStack {
             VStack {
                 Text("タップ回数：\(tapNum)")
                 Text("タップ間隔：\(timerController.count)")
-//                Text("タップ間隔：\(timer.count)")
+                Text("タップ間隔：\(TimeCount)")
                 Text("左を選んだ回数：\(LeftChoice)")
                 Text("右を選んだ回数：\(RightChoice)")
             }
         }
-        Choice(tapNum: $tapNum, LeftChoice: $LeftChoice, RightChoice: $RightChoice)
+        Choice(tapNum: $tapNum, LeftChoice: $LeftChoice, RightChoice: $RightChoice,TimeCount: $TimeCount,time: $time)
     }
 }
 
 struct Choice : View {
-    
     @EnvironmentObject var timerController: TimerCount
-    @EnvironmentObject var timer: TimeCount
     @Binding var tapNum:Int
     @Binding var LeftChoice:Int
     @Binding var RightChoice:Int
-    @State var collect:Bool = false
-    
-    func collection() async throws {
-        let db = Firestore.firestore()
-        db.collection("messages").addDocument(data: ["text": "左"]) {err in
-            if let e = err {
-                print(e)
-            } else {
-                print("sent")
-            }
-        }
-    }
+    @Binding var TimeCount:Double
+    @Binding var time: AnyCancellable?
     
     var body: some View {
         VStack {
             Spacer()
+            Text("タップ間隔２：\(timerController.count)")
             HStack {
                 Spacer()
                 Button(action: {
                     tapNum += 1
                     LeftChoice += 1
-                    timerController.start(0.1)
-                    Task {
-                        do {
-                            try await Task.sleep(nanoseconds:3_000_000_000)
-                            try await collection()
-                        } catch {
-                          print("Error:\(error)")
+                    TimeCount = 0
+                    if let _timer = time{
+                        _timer.cancel()
+                    }
+                    time = Timer.publish(every: 0.1, on: .main, in: .common)
+                        .autoconnect()
+                        .receive(on: DispatchQueue.main)
+                        .sink { _ in
+                            TimeCount += 0.1
                         }
+                    DispatchQueue.main.async {
+                        timerController.count = 10
+                        timerController.start(0.1)
+                        print("\(timerController.count)")
+                    }
+                    
+                    DispatchQueue.global().async {
+                        let db = Firestore.firestore()
+                        db.collection("messages").addDocument(data: ["text": "左"])
+                        print("sent")
+                        print("\(timerController.count)")
                     }
                 })
                 {
@@ -221,12 +236,8 @@ struct Choice : View {
                 Button(action: {
                     tapNum += 1
                     RightChoice += 1
+                    timerController.count = 0
                     timerController.start(0.1)
-//                    Task {
-//                        try await
-//                    }
-                    
-
                 })
                 {
                     Text("右の画像")
