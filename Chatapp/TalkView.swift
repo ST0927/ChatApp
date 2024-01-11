@@ -12,6 +12,43 @@ import Combine
 import UIKit
 import Combine
 
+class DataViewModel: ObservableObject {
+    @Published var responseData: String = ""
+
+    func sendData() {
+        let url = URL(string: "Your_API_Endpoint_URL_Here")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let sendData = ["key": "t9eX8tyr7G_ZQk-2",
+                        "meta": ["area": 1927,
+                                 "type": 1927,
+                                 "sensor_id": UserDefaults.standard.string(forKey: "username") ?? "",
+                                 "data_time": 1/1000],
+                        "body": []] as [String: Any]
+
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: sendData)
+            request.httpBody = jsonData
+        } catch {
+            print("Error: \(error)")
+        }
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let data = data {
+                if let responseString = String(data: data, encoding: .utf8) {
+                    DispatchQueue.main.async {
+                        self.responseData = responseString
+                    }
+                }
+            } else if let error = error {
+                print("Error: \(error)")
+            }
+        }.resume()
+    }
+}
+
 struct Talk: View {
     @State var message = ""
     @State var history: [Message] = []
@@ -20,6 +57,9 @@ struct Talk: View {
     @State var isButtonDisabled: Bool = false
     //アンケートを開始するかを決める変数
     @State var start:Bool = false
+    
+    @State  private var offsetY: CGFloat = 0
+    @State  private var initOffsetY: CGFloat = 0
     
     
     var body: some View {
@@ -89,8 +129,23 @@ struct Talk: View {
                                 Spacer()
                             }.padding(.horizontal)
                         }.padding(.vertical, 5)
+                            .background(
+                                GeometryReader { geometry in
+                                    Color.clear
+                                        .preference(
+                                            key: ScrollOffsetYPreferenceKey.self,
+                                            value: [geometry.frame(in: .global).minY]
+                                        ).onAppear {
+                                            initOffsetY = geometry.frame(in: .global).minY
+                                        }
+                                }
+                            )
                     }
                 }.padding(.bottom, 55)
+                    .onPreferenceChange(ScrollOffsetYPreferenceKey.self) { value in
+                        offsetY = value[0]
+                        print(offsetY - initOffsetY)
+                }
                 .onTapGesture {
                     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 }
@@ -135,10 +190,17 @@ struct Talk: View {
                 }
             }
             if start == true {
-                Logger()
+                Logger(offsetY: $offsetY, initOffsetY: $initOffsetY)
                     .environmentObject(TimerCount())
             }
         }
+    }
+}
+
+struct ScrollOffsetYPreferenceKey: PreferenceKey {
+    static var defaultValue: [CGFloat] = [0]
+    static func reduce(value: inout [CGFloat], nextValue: () -> [CGFloat]) {
+        value.append(contentsOf: nextValue())
     }
 }
 
@@ -149,6 +211,8 @@ struct Logger : View {
     @State var RightChoice:Int = 0
     @State var TimeCount:Double = 0
     @State var time: AnyCancellable?
+    @Binding var offsetY:CGFloat
+    @Binding var initOffsetY:CGFloat
 
     var body: some View {
         //透明なビューを設置してタップ回数のカウント
@@ -156,8 +220,6 @@ struct Logger : View {
             .contentShape(Rectangle())
             .onTapGesture {
                 tapNum += 1
-                timerController.count=0
-                timerController.start(0.1)
                 
                 TimeCount = 0
                 if let _timer = time{
@@ -171,15 +233,15 @@ struct Logger : View {
                     }
 
             }
-
         //動作確認用
         HStack {
             VStack {
                 Text("タップ回数：\(tapNum)")
-                Text("タップ間隔：\(timerController.count)")
                 Text("タップ間隔：\(TimeCount)")
                 Text("左を選んだ回数：\(LeftChoice)")
                 Text("右を選んだ回数：\(RightChoice)")
+                Text("スクロール位置：\(offsetY - initOffsetY)")
+                
             }
         }
         Choice(tapNum: $tapNum, LeftChoice: $LeftChoice, RightChoice: $RightChoice,TimeCount: $TimeCount,time: $time)
@@ -197,12 +259,12 @@ struct Choice : View {
     var body: some View {
         VStack {
             Spacer()
-            Text("タップ間隔２：\(timerController.count)")
             HStack {
                 Spacer()
                 Button(action: {
                     tapNum += 1
                     LeftChoice += 1
+                    //以下、環境変数の中身移植したら正常に動作した部分
                     TimeCount = 0
                     if let _timer = time{
                         _timer.cancel()
@@ -213,17 +275,14 @@ struct Choice : View {
                         .sink { _ in
                             TimeCount += 0.1
                         }
-                    DispatchQueue.main.async {
-                        timerController.count = 10
-                        timerController.start(0.1)
-                        print("\(timerController.count)")
-                    }
-                    
-                    DispatchQueue.global().async {
-                        let db = Firestore.firestore()
-                        db.collection("messages").addDocument(data: ["text": "左"])
-                        print("sent")
-                        print("\(timerController.count)")
+                    //
+                    let db = Firestore.firestore()
+                    db.collection("messages").addDocument(data: ["text": "左の画像"]) { err in
+                        if let e = err {
+                            print(e)
+                        } else {
+                            print("sent")
+                        }
                     }
                 })
                 {
@@ -236,8 +295,25 @@ struct Choice : View {
                 Button(action: {
                     tapNum += 1
                     RightChoice += 1
-                    timerController.count = 0
-                    timerController.start(0.1)
+                    TimeCount = 0
+                    if let _timer = time{
+                        _timer.cancel()
+                    }
+                    time = Timer.publish(every: 0.1, on: .main, in: .common)
+                        .autoconnect()
+                        .receive(on: DispatchQueue.main)
+                        .sink { _ in
+                            TimeCount += 0.1
+                        }
+                    
+                    let db = Firestore.firestore()
+                    db.collection("messages").addDocument(data: ["text": "右の画像"]) { err in
+                        if let e = err {
+                            print(e)
+                        } else {
+                            print("sent")
+                        }
+                    }
                 })
                 {
                     Text("右の画像")
@@ -263,5 +339,4 @@ struct Message : Identifiable {
     Talk()
         .environmentObject(QuestionList())
 }
-
 
