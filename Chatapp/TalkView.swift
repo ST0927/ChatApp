@@ -49,6 +49,14 @@ class DataViewModel: ObservableObject {
     }
 }
 
+func Qframe(s: String) -> some View {
+    return Text(s).frame(width: 280).font(.system(size: 14)).padding(10).background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
+}
+
+func Aframe(s: String) -> some View {
+    return Text(s).font(.system(size: 14)).padding(10).background(Color(#colorLiteral(red: 0.2078431373, green: 0.7647058824, blue: 0.3450980392, alpha: 1))).cornerRadius(10)
+}
+
 struct Talk: View {
     @State var message = ""
     @State var history: [Message] = []
@@ -115,22 +123,17 @@ struct Talk: View {
                                 let Num = index+1 //indexがIntじゃないから数字を足す
                                 HStack {
                                     Spacer()
-                                    Text(" \(history[index].text)")
-                                        .font(.system(size: 14))
-                                        .padding(10)
-                                        .background(Color(#colorLiteral(red: 0.2078431373, green: 0.7647058824, blue: 0.3450980392, alpha: 1)))
-                                        .cornerRadius(10)
+                                    Aframe(s:" \(history[index].text)")
                                 }.padding(.horizontal)
                                 
                                 HStack(alignment: .top) {
-                                    AvatarView(imageName: "avatar")
-                                        .padding(.trailing, 8)
                                     VStack(spacing: 0) {
-                                        Text("問 \(Num)： 魅力的だと思う画像を選んでください ")
-                                            .frame(width: 280)
-                                            .font(.system(size: 14))
-                                            .padding(10)
-                                            .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
+                                        HStack {
+                                            AvatarView(imageName: "avatar")
+                                                .padding(.trailing, 8)
+                                            Spacer()
+                                        }
+                                        Qframe(s:"問 \(Num)： 魅力的だと思う画像を選んでください ")
                                         HStack(spacing: 0) {
                                             if Num/2 <= (Q.ImageName.count/4) {
                                                 Image(Q.ImageName[Num*2 - 2])
