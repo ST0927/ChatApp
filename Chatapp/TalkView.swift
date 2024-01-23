@@ -78,147 +78,158 @@ struct Talk: View {
             Color(red:1.0,green:0.98,blue:0.94)
                 .ignoresSafeArea(edges: [.bottom])
             VStack(alignment: .leading) {
-                ScrollView {
-                    if start == false {
-                        HStack(alignment: .top) {
-                            AvatarView(imageName: "avatar")
-                                .padding(.trailing, 8)
-                            VStack(spacing: 0) {
-                                Text("アンケートを始めますか？")
-                                    .frame(width: 200)
-                                    .font(.system(size: 14))
-                                    .padding(10)
-                                    .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
-                                Button(action: {
-                                    start = true
-                                    let db = Firestore.firestore()
-                                    db.collection("messages").addDocument(data: ["text": "始める"]) { err in
-                                        if let e = err {
-                                            print(e)
-                                        } else {
-                                            print("sent")
-                                        }
-                                    }
-                                })
-                                {
-                                    Text("はい")
-                                        .frame(width: 200)
-                                        .padding(10)
-                                        .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
-                                }.disabled(isButtonDisabled)
-                            }
-                            Spacer()
-                        }.padding(.top, 10)
-                    } else {
-                        ForEach(history.indices, id: \.self) { index in
-                            let Num = index+1 //indexがIntじゃないから数字を足す
-                            HStack {
-                                Spacer()
-                                Text(" \(history[index].text)")
-                                    .font(.system(size: 14))
-                                    .padding(10)
-                                    .background(Color(#colorLiteral(red: 0.2078431373, green: 0.7647058824, blue: 0.3450980392, alpha: 1)))
-                                    .cornerRadius(10)
-                            }.padding(.horizontal)
-                            
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        if start == false {
                             HStack(alignment: .top) {
                                 AvatarView(imageName: "avatar")
                                     .padding(.trailing, 8)
                                 VStack(spacing: 0) {
-                                    Text("問 \(Num)： 魅力的だと思う画像を選んでください ")
-                                        .frame(width: 280)
+                                    Text("アンケートを始めますか？")
+                                        .frame(width: 200)
                                         .font(.system(size: 14))
                                         .padding(10)
                                         .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
-                                    HStack(spacing: 0) {
-                                        if Num/2 <= (Q.ImageName.count/4) {
-                                            Image(Q.ImageName[Num*2 - 2])
-                                                .resizable()
-                                                .frame(width: 150, height: 150)
-                                                .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
-                                                .background(Color.white)
-                                            Image(Q.ImageName[Num*2 - 1])
-                                                .resizable()
-                                                .frame(width: 150, height: 150)
-                                                .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
-                                                .background(Color.white)
+                                    Button(action: {
+                                        start = true
+                                        let db = Firestore.firestore()
+                                        db.collection("messages").addDocument(data: ["text": "始める"]) { err in
+                                            if let e = err {
+                                                print(e)
+                                            } else {
+                                                print("sent")
+                                            }
                                         }
+                                    })
+                                    {
+                                        Text("はい")
+                                            .frame(width: 200)
+                                            .padding(10)
+                                            .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
                                     }.disabled(isButtonDisabled)
                                 }
                                 Spacer()
-                            }.padding(.horizontal)
-                        }.padding(.vertical, 5)
-                            .background(
-                                GeometryReader { geometry in
-                                    Color.clear
-                                        .preference(
-                                            key: ScrollOffsetYPreferenceKey.self,
-                                            value: [geometry.frame(in: .global).minY]
-                                        ).onAppear {
-                                            initOffsetY = geometry.frame(in: .global).minY
-                                        }
+                            }.padding(.top, 10)
+                        } else {
+                            ForEach(history.indices, id: \.self) { index in
+                                let Num = index+1 //indexがIntじゃないから数字を足す
+                                HStack {
+                                    Spacer()
+                                    Text(" \(history[index].text)")
+                                        .font(.system(size: 14))
+                                        .padding(10)
+                                        .background(Color(#colorLiteral(red: 0.2078431373, green: 0.7647058824, blue: 0.3450980392, alpha: 1)))
+                                        .cornerRadius(10)
+                                }.padding(.horizontal)
+                                
+                                HStack(alignment: .top) {
+                                    AvatarView(imageName: "avatar")
+                                        .padding(.trailing, 8)
+                                    VStack(spacing: 0) {
+                                        Text("問 \(Num)： 魅力的だと思う画像を選んでください ")
+                                            .frame(width: 280)
+                                            .font(.system(size: 14))
+                                            .padding(10)
+                                            .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
+                                        HStack(spacing: 0) {
+                                            if Num/2 <= (Q.ImageName.count/4) {
+                                                Image(Q.ImageName[Num*2 - 2])
+                                                    .resizable()
+                                                    .frame(width: 150, height: 150)
+                                                    .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
+                                                    .background(Color.white)
+                                                Image(Q.ImageName[Num*2 - 1])
+                                                    .resizable()
+                                                    .frame(width: 150, height: 150)
+                                                    .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
+                                                    .background(Color.white)
+                                            }
+                                        }.disabled(isButtonDisabled)
+                                    }
+                                    Spacer()
+                                }.padding(.horizontal)
+                            }.padding(.vertical, 5)
+                                .background(
+                                    GeometryReader { geometry in
+                                        Color.clear
+                                            .preference(
+                                                key: ScrollOffsetYPreferenceKey.self,
+                                                value: [geometry.frame(in: .global).minY]
+                                            ).onAppear {
+                                                initOffsetY = geometry.frame(in: .global).minY
+                                            }
+                                    }
+                                )
+
+                                
+                        }
+                        Spacer(minLength: 50).id("footer")
+                    }.padding(.bottom, 55)
+                        .onChange(of: history.indices) {
+                                    withAnimation {
+                                        proxy.scrollTo("footer")
+                                    }
                                 }
-                            )
-                    }
-                }.padding(.bottom, 55)
-                    .onPreferenceChange(ScrollOffsetYPreferenceKey.self) { value in
-                        offsetY = value[0]
-                        if scroll == false {
-                            print("start")
-                            startposition = offsetY - initOffsetY
-                            UnScrollTimeCount = unScrollTimeCount
-                            
-                            if let _timer = ScrollTime{
+                        .onPreferenceChange(ScrollOffsetYPreferenceKey.self) { value in
+                            offsetY = value[0]
+                            if scroll == false {
+                                print("start")
+                                startposition = offsetY - initOffsetY
+                                UnScrollTimeCount = unScrollTimeCount
+                                
+                                if let _timer = ScrollTime{
+                                    _timer.cancel()
+                                }
+                                ScrollTime = Timer.publish(every: 0.1, on: .main, in: .common)
+                                    .autoconnect()
+                                    .receive(on: DispatchQueue.main)
+                                    .sink { _ in
+                                        ScrollTimeCount += 0.1
+                                    }
+                            }
+                            scroll = true
+                            current = offsetY - initOffsetY
+                            print(offsetY - initOffsetY)
+                            if let _timer = Time{
                                 _timer.cancel()
                             }
-                            ScrollTime = Timer.publish(every: 0.1, on: .main, in: .common)
+                            Time = Timer.publish(every: 0.1, on: .main, in: .common)
                                 .autoconnect()
                                 .receive(on: DispatchQueue.main)
                                 .sink { _ in
-                                    ScrollTimeCount += 0.1
-                                }
-                        }
-                        scroll = true
-                        current = offsetY - initOffsetY
-                        print(offsetY - initOffsetY)
-                        if let _timer = Time{
-                            _timer.cancel()
-                        }
-                        Time = Timer.publish(every: 0.1, on: .main, in: .common)
-                            .autoconnect()
-                            .receive(on: DispatchQueue.main)
-                            .sink { _ in
-                                if scroll == true {
-                                    if pre == current {
-                                        print("end")
-                                        endposition = offsetY - initOffsetY
-                                        ScrollingTime = ScrollTimeCount
-                                        ScrollSpeed = (endposition - startposition)/ScrollingTime
-                                        ScrollTimeCount = 0
-                                        scroll = false
-                                    } else {
-                                        print("スクロール中")
-                                    }
-                                }
-                                else if pre == current {
-                                    unScrollTimeCount = 0
-                                    if let _timer = unScrollTime{
-                                        _timer.cancel()
-                                    }
-                                    unScrollTime = Timer.publish(every: 0.1, on: .main, in: .common)
-                                        .autoconnect()
-                                        .receive(on: DispatchQueue.main)
-                                        .sink { _ in
-                                            unScrollTimeCount += 0.1
+                                    if scroll == true {
+                                        if pre == current {
+                                            print("end")
+                                            endposition = offsetY - initOffsetY
+                                            ScrollingTime = ScrollTimeCount
+                                            ScrollSpeed = (endposition - startposition)/ScrollingTime
+                                            ScrollTimeCount = 0
+                                            scroll = false
+                                        } else {
+                                            print("スクロール中")
                                         }
+                                    }
+                                    else if pre == current {
+                                        unScrollTimeCount = 0
+                                        if let _timer = unScrollTime{
+                                            _timer.cancel()
+                                        }
+                                        unScrollTime = Timer.publish(every: 0.1, on: .main, in: .common)
+                                            .autoconnect()
+                                            .receive(on: DispatchQueue.main)
+                                            .sink { _ in
+                                                unScrollTimeCount += 0.1
+                                            }
+                                    }
                                 }
-                            }
-                        pre = offsetY - initOffsetY
+                            pre = offsetY - initOffsetY
+                        }
+                    
+                    .onTapGesture {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     }
-                
-                .onTapGesture {
-                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 }
+                
                 
                 
                 
