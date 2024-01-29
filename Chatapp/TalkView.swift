@@ -23,9 +23,9 @@ class DataViewModel: ObservableObject {
 
         let sendData = ["key": "t9eX8tyr7G_ZQk-2",
                         "meta": ["area": 1927,
-                                 "type": 1927,
-                                 "sensor_id": UserDefaults.standard.string(forKey: "username") ?? "",
-                                 "data_time": 1/1000],
+                                "type": 1927,
+                                "sensor_id": UserDefaults.standard.string(forKey: "username") ?? "",
+                                "data_time": 1/1000],
                         "body": []] as [String: Any]
 
         do {
