@@ -12,48 +12,58 @@ import Combine
 import UIKit
 import Combine
 
-class DataViewModel: ObservableObject {
-    @Published var responseData: String = ""
+//class DataViewModel: ObservableObject {
+//    @Published var responseData: String = ""
+//
+//    func sendData() {
+//        let url = URL(string: "Your_API_Endpoint_URL_Here")!
+//        var request = URLRequest(url: url)
+//        request.httpMethod = "POST"
+//        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+//
+//        let sendData = ["key": "t9eX8tyr7G_ZQk-2",
+//                        "meta": ["area": 1927,
+//                                 "type": 1927,
+//                                 "sensor_id": UserDefaults.standard.string(forKey: "username") ?? "",
+//                                 "data_time": 1/1000],
+//                        "body": []] as [String: Any]
+//
+//        do {
+//            let jsonData = try JSONSerialization.data(withJSONObject: sendData)
+//            request.httpBody = jsonData
+//        } catch {
+//            print("Error: \(error)")
+//        }
+//
+//        URLSession.shared.dataTask(with: request) { data, response, error in
+//            if let data = data {
+//                if let responseString = String(data: data, encoding: .utf8) {
+//                    DispatchQueue.main.async {
+//                        self.responseData = responseString
+//                    }
+//                }
+//            } else if let error = error {
+//                print("Error: \(error)")
+//            }
+//        }.resume()
+//    }
+//}
+//質問内容の枠
 
-    func sendData() {
-        let url = URL(string: "Your_API_Endpoint_URL_Here")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let sendData = ["key": "t9eX8tyr7G_ZQk-2",
-                        "meta": ["area": 1927,
-                                "type": 1927,
-                                "sensor_id": UserDefaults.standard.string(forKey: "username") ?? "",
-                                "data_time": 1/1000],
-                        "body": []] as [String: Any]
-
-        do {
-            let jsonData = try JSONSerialization.data(withJSONObject: sendData)
-            request.httpBody = jsonData
-        } catch {
-            print("Error: \(error)")
-        }
-
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let data = data {
-                if let responseString = String(data: data, encoding: .utf8) {
-                    DispatchQueue.main.async {
-                        self.responseData = responseString
-                    }
-                }
-            } else if let error = error {
-                print("Error: \(error)")
-            }
-        }.resume()
-    }
+func Q_frame(s: String) -> some View {
+    return Text(s).font(.system(size: 14)).padding(10).background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
+        .frame(width: 350)
 }
-
-func Qframe(s: String) -> some View {
-    return Text(s).frame(width: 280).font(.system(size: 14)).padding(10).background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
+//画像の枠
+func I_frame(i: String) -> some View {
+    return Image(i)
+        .resizable()
+        .frame(width: 150, height: 150)
+        .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
+        .background(Color.white)
 }
-
-func Aframe(s: String) -> some View {
+//回答の枠
+func A_frame(s: String) -> some View {
     return Text(s).font(.system(size: 14)).padding(10).background(Color(#colorLiteral(red: 0.2078431373, green: 0.7647058824, blue: 0.3450980392, alpha: 1))).cornerRadius(10)
 }
 
@@ -62,9 +72,7 @@ struct Talk: View {
     @State var history: [Message] = []
     @EnvironmentObject var Q: QuestionList
     @State var isButtonDisabled: Bool = false
-    //アンケートを開始するかを決める変数
-    @State var start:Bool = false
-    //
+    @State var start:Bool = false  //アンケートを開始するかを決める変数
     @State var offsetY: CGFloat = 0
     @State var initOffsetY: CGFloat = 0
     @State var pre: CGFloat = 0
@@ -83,21 +91,15 @@ struct Talk: View {
     
     var body: some View {
         ZStack {
-            Color(red:1.0,green:0.98,blue:0.94)
-                .ignoresSafeArea(edges: [.bottom])
+            Color(red:1.0,green:0.98,blue:0.94).ignoresSafeArea(edges: [.bottom])
             VStack(alignment: .leading) {
                 ScrollViewReader { proxy in
                     ScrollView {
                         if start == false {
                             HStack(alignment: .top) {
-                                AvatarView(imageName: "avatar")
-                                    .padding(.trailing, 8)
+                                AvatarView(imageName: "avatar").padding(10)
                                 VStack(spacing: 0) {
-                                    Text("アンケートを始めますか？")
-                                        .frame(width: 200)
-                                        .font(.system(size: 14))
-                                        .padding(10)
-                                        .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
+                                    Text("アンケートを始めますか？").frame(width: 200).font(.system(size: 14)).padding(10).background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
                                     Button(action: {
                                         start = true
                                         let db = Firestore.firestore()
@@ -110,10 +112,7 @@ struct Talk: View {
                                         }
                                     })
                                     {
-                                        Text("はい")
-                                            .frame(width: 200)
-                                            .padding(10)
-                                            .background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
+                                        Text("はい").frame(width: 200).padding(10).background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
                                     }.disabled(isButtonDisabled)
                                 }
                                 Spacer()
@@ -123,7 +122,7 @@ struct Talk: View {
                                 let Num = index+1 //indexがIntじゃないから数字を足す
                                 HStack {
                                     Spacer()
-                                    Aframe(s:" \(history[index].text)")
+                                    A_frame(s:" \(history[index].text)")
                                 }.padding(.horizontal)
                                 
                                 HStack(alignment: .top) {
@@ -133,19 +132,11 @@ struct Talk: View {
                                                 .padding(.trailing, 8)
                                             Spacer()
                                         }
-                                        Qframe(s:"問 \(Num)： 魅力的だと思う画像を選んでください ")
+                                        Q_frame(s:"問 \(Num)： 魅力的だと思う画像を選んでください ")
                                         HStack(spacing: 0) {
                                             if Num/2 <= (Q.ImageName.count/4) {
-                                                Image(Q.ImageName[Num*2 - 2])
-                                                    .resizable()
-                                                    .frame(width: 150, height: 150)
-                                                    .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
-                                                    .background(Color.white)
-                                                Image(Q.ImageName[Num*2 - 1])
-                                                    .resizable()
-                                                    .frame(width: 150, height: 150)
-                                                    .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
-                                                    .background(Color.white)
+                                                I_frame(i:Q.ImageName[Num*2 - 2])
+                                                I_frame(i:Q.ImageName[Num*2 - 1])
                                             }
                                         }.disabled(isButtonDisabled)
                                     }
@@ -163,8 +154,6 @@ struct Talk: View {
                                             }
                                     }
                                 )
-
-                                
                         }
                         Spacer(minLength: 50).id("footer")
                     }.padding(.bottom, 55)
@@ -179,7 +168,6 @@ struct Talk: View {
                                 print("start")
                                 startposition = offsetY - initOffsetY
                                 UnScrollTimeCount = unScrollTimeCount
-                                
                                 if let _timer = ScrollTime{
                                     _timer.cancel()
                                 }
@@ -227,15 +215,10 @@ struct Talk: View {
                                 }
                             pre = offsetY - initOffsetY
                         }
-                    
-                    .onTapGesture {
-                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                    }
+//                    .onTapGesture {
+//                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+//                    }
                 }
-                
-                
-                
-                
             }.keyboardObserving().onAppear  {
                 let db = Firestore.firestore()
                 db.collection("messages").addSnapshotListener {
@@ -252,7 +235,10 @@ struct Talk: View {
                     }
                 }
             }
-
+            if start == true {
+                Logger(offsetY: $offsetY, initOffsetY: $initOffsetY, pre: $pre, current: $current, scroll: $scroll, startposition: $startposition, endposition: $endposition, ScrollingTime: $ScrollingTime, ScrollSpeed: $ScrollSpeed, UnScrollTimeCount: $UnScrollTimeCount)
+                    .environmentObject(TimerCount())
+            }
             VStack {
                 Spacer()
                 HStack(spacing:0) {
@@ -269,16 +255,14 @@ struct Talk: View {
                             }
                         }
                         self.message = ""
+                        //キーボードを閉じる
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     }) {
                         Image(systemName:"paperplane.fill")
                             .frame(width: 55,height: 55)
                             .background(Color.white)
                     }
                 }
-            }
-            if start == true {
-                Logger(offsetY: $offsetY, initOffsetY: $initOffsetY, pre: $pre, current: $current, scroll: $scroll, startposition: $startposition, endposition: $endposition, ScrollingTime: $ScrollingTime, ScrollSpeed: $ScrollSpeed, UnScrollTimeCount: $UnScrollTimeCount)
-                    .environmentObject(TimerCount())
             }
         }
     }
@@ -309,7 +293,6 @@ struct Logger : View {
     @Binding var ScrollingTime:Double
     @Binding var ScrollSpeed:Double
     @Binding var UnScrollTimeCount:Double
-   
 
     var body: some View {
         //透明なビューを設置してタップ回数のカウント
@@ -327,6 +310,8 @@ struct Logger : View {
                     .sink { _ in
                         TimeCount += 0.1
                     }
+                //キーボードを閉じる
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             }
         //動作確認用
         HStack {
@@ -343,7 +328,7 @@ struct Logger : View {
                 
             }
         }
-        Choice(tapNum: $tapNum, LeftChoice: $LeftChoice, RightChoice: $RightChoice,TimeCount: $TimeCount,time: $time)
+//        Choice(tapNum: $tapNum, LeftChoice: $LeftChoice, RightChoice: $RightChoice,TimeCount: $TimeCount,time: $time)
     }
 }
 
