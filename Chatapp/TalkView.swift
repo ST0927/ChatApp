@@ -51,20 +51,31 @@ import Combine
 //質問内容の枠
 
 func Q_frame(s: String) -> some View {
-    return Text(s).font(.system(size: 14)).padding(10).background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
-        .frame(width: 350)
+    HStack(alignment: .top) {
+        AvatarView(imageName: "avatar")
+        Text(s).font(.system(size: 14)).padding(10).background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
+            .frame(maxWidth: .infinity)
+        Spacer()
+    }.padding(.horizontal, 10)
 }
 //画像の枠
 func I_frame(i: String) -> some View {
-    return Image(i)
-        .resizable()
-        .frame(width: 150, height: 150)
-        .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
-        .background(Color.white)
+    Button(action: {
+        
+    }){
+        Image(i)
+            .resizable()
+            .frame(width: 200, height: 200)
+            .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
+            .background(Color.white)
+    }
 }
-//回答の枠
+//回答の枠/右端に回答内容を表示
 func A_frame(s: String) -> some View {
-    return Text(s).font(.system(size: 14)).padding(10).background(Color(#colorLiteral(red: 0.2078431373, green: 0.7647058824, blue: 0.3450980392, alpha: 1))).cornerRadius(10)
+    HStack {
+        Spacer()
+        Text(s).font(.system(size: 14)).padding(10).background(Color(#colorLiteral(red: 0.2078431373, green: 0.7647058824, blue: 0.3450980392, alpha: 1))).cornerRadius(10)
+    }.padding(.horizontal, 10)
 }
 
 struct Talk: View {
@@ -72,7 +83,7 @@ struct Talk: View {
     @State var history: [Message] = []
     @EnvironmentObject var Q: QuestionList
     @State var isButtonDisabled: Bool = false
-    @State var start:Bool = false  //アンケートを開始するかを決める変数
+    @State var start:Bool = true  //アンケートを開始するかを決める変数
     @State var offsetY: CGFloat = 0
     @State var initOffsetY: CGFloat = 0
     @State var pre: CGFloat = 0
@@ -120,28 +131,19 @@ struct Talk: View {
                         } else {
                             ForEach(history.indices, id: \.self) { index in
                                 let Num = index+1 //indexがIntじゃないから数字を足す
-                                HStack {
-                                    Spacer()
-                                    A_frame(s:" \(history[index].text)")
-                                }.padding(.horizontal)
-                                
+                                A_frame(s:" \(history[index].text)")
                                 HStack(alignment: .top) {
                                     VStack(spacing: 0) {
-                                        HStack {
-                                            AvatarView(imageName: "avatar")
-                                                .padding(.trailing, 8)
-                                            Spacer()
-                                        }
-                                        Q_frame(s:"問 \(Num)： 魅力的だと思う画像を選んでください ")
+                                        Q_frame(s:"問 \(Num)： 魅力的だと思う画像を選んでください")
                                         HStack(spacing: 0) {
                                             if Num/2 <= (Q.ImageName.count/4) {
                                                 I_frame(i:Q.ImageName[Num*2 - 2])
                                                 I_frame(i:Q.ImageName[Num*2 - 1])
                                             }
-                                        }.disabled(isButtonDisabled)
+                                        }
                                     }
                                     Spacer()
-                                }.padding(.horizontal)
+                                }
                             }.padding(.vertical, 5)
                                 .background(
                                     GeometryReader { geometry in
@@ -215,9 +217,6 @@ struct Talk: View {
                                 }
                             pre = offsetY - initOffsetY
                         }
-//                    .onTapGesture {
-//                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-//                    }
                 }
             }.keyboardObserving().onAppear  {
                 let db = Firestore.firestore()
@@ -325,7 +324,6 @@ struct Logger : View {
                 Text("スクロール時間：\(ScrollingTime)")
                 Text("スクロール速度：\(abs(ScrollSpeed))")
 //                Text("スクロール間隔：\(UnScrollTimeCount)")
-                
             }
         }
 //        Choice(tapNum: $tapNum, LeftChoice: $LeftChoice, RightChoice: $RightChoice,TimeCount: $TimeCount,time: $time)
