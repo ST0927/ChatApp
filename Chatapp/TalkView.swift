@@ -48,42 +48,15 @@ import Combine
 //        }.resume()
 //    }
 //}
-//質問内容の枠
-
-func Q_frame(s: String) -> some View {
-    HStack(alignment: .top) {
-        AvatarView(imageName: "avatar")
-        Text(s).font(.system(size: 14)).padding(10).background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)))
-            .frame(maxWidth: .infinity)
-        Spacer()
-    }.padding(.horizontal, 10)
-}
-//画像の枠
-func I_frame(i: String) -> some View {
-    Button(action: {
-        
-    }){
-        Image(i)
-            .resizable()
-            .frame(width: 200, height: 200)
-            .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
-            .background(Color.white)
-    }
-}
-//回答の枠/右端に回答内容を表示
-func A_frame(s: String) -> some View {
-    HStack {
-        Spacer()
-        Text(s).font(.system(size: 14)).padding(10).background(Color(#colorLiteral(red: 0.2078431373, green: 0.7647058824, blue: 0.3450980392, alpha: 1))).cornerRadius(10)
-    }.padding(.horizontal, 10)
-}
 
 struct Talk: View {
     @State var message = ""
+    @State var key_message: [String] = []
+    @State var key_history:[String] = []
     @State var history: [Message] = []
     @EnvironmentObject var Q: QuestionList
     @State var isButtonDisabled: Bool = false
-    @State var start:Bool = true  //アンケートを開始するかを決める変数
+    @State var start:Bool = true //アンケートを開始するかを決める変数
     @State var offsetY: CGFloat = 0
     @State var initOffsetY: CGFloat = 0
     @State var pre: CGFloat = 0
@@ -99,6 +72,32 @@ struct Talk: View {
     @State var unScrollTime: AnyCancellable?
     @State var unScrollTimeCount:Double = 0
     @State var UnScrollTimeCount:Double = 0
+    @State var Delete: Int = 0
+    
+    //質問内容の枠
+    func Q_frame(s: String) -> some View {
+        HStack(alignment: .top) {
+            AvatarView(imageName: "avatar")
+            Text(s).font(.system(size: 14)).padding(10).background(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1))).cornerRadius(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Spacer()
+        }.padding(.horizontal, 10)
+    }
+    //回答の枠/右端に回答内容を表示
+    func A_frame(s: String) -> some View {
+        HStack {
+            Spacer()
+            Text(s).font(.system(size: 14)).padding(10).background(Color(#colorLiteral(red: 0.2078431373, green: 0.7647058824, blue: 0.3450980392, alpha: 1))).cornerRadius(10)
+        }.padding(.horizontal, 10)
+    }
+    //画像の枠
+    func I_frame(i: String) -> some View {
+            Image(i)
+                .resizable()
+                .frame(width: 200, height: 200)
+                .border(Color(#colorLiteral(red: 0.9098039216, green: 0.9098039216, blue: 0.9176470588, alpha: 1)), width: 1)
+                .background(Color.white)
+    }
     
     var body: some View {
         ZStack {
@@ -235,7 +234,7 @@ struct Talk: View {
                 }
             }
             if start == true {
-                Logger(offsetY: $offsetY, initOffsetY: $initOffsetY, pre: $pre, current: $current, scroll: $scroll, startposition: $startposition, endposition: $endposition, ScrollingTime: $ScrollingTime, ScrollSpeed: $ScrollSpeed, UnScrollTimeCount: $UnScrollTimeCount)
+                Logger(offsetY: $offsetY, initOffsetY: $initOffsetY, pre: $pre, current: $current, scroll: $scroll, startposition: $startposition, endposition: $endposition, ScrollingTime: $ScrollingTime, ScrollSpeed: $ScrollSpeed, UnScrollTimeCount: $UnScrollTimeCount,key_message: $key_message,key_history: $key_history,Delete: $Delete)
                     .environmentObject(TimerCount())
             }
             VStack {
@@ -244,6 +243,16 @@ struct Talk: View {
                     TextField("　メッセージ", text: $message)
                         .frame(height: 55)
                         .background(Color.white)
+                        .onChange(of: message) {
+                                key_message.append("\(message)")
+                                key_history.append("\(message.replacingOccurrences(of:" ",with: "[空白]"))")
+                            if key_message.count > 1 {
+                                if key_message[key_message.count-1].count < key_message[key_message.count-2].count {
+                                    key_history.append("\(key_message[key_message.count - 1])[削除]")
+                                    Delete += 1
+                                }
+                            }
+                        }
                     Button(action: {
                         let db = Firestore.firestore()
                         db.collection("messages").addDocument(data: ["text":self.message]) { err in
@@ -292,6 +301,9 @@ struct Logger : View {
     @Binding var ScrollingTime:Double
     @Binding var ScrollSpeed:Double
     @Binding var UnScrollTimeCount:Double
+    @Binding var key_message:[String]
+    @Binding var key_history:[String]
+    @Binding var Delete:Int
 
     var body: some View {
         //透明なビューを設置してタップ回数のカウント
@@ -315,14 +327,24 @@ struct Logger : View {
         //動作確認用
         HStack {
             VStack {
+                
+                if !key_message.isEmpty {
+//                    Text("キーボード入力：\(key_message[key_message.count - 1])")
+//                    Text("キーボード入力：\(key_message.joined(separator: ", "))")
+                }
+                if !key_history.isEmpty {
+//                    Text("キーボード入力：\(key_history[key_history.count - 1])")
+//                    Text("キーボード入力：\(key_history.joined(separator: ", "))")
+                }
                 Text("タップ回数：\(tapNum)")
                 Text("タップ間隔：\(TimeCount)")
                 Text("左を選んだ回数：\(LeftChoice)")
                 Text("右を選んだ回数：\(RightChoice)")
-                Text("画面位置：\(offsetY - initOffsetY)")
-                Text("スクロール長さ：\(endposition - startposition)")
+                Text("画面位置：\(abs(offsetY - initOffsetY))")
+                Text("スクロール長さ：\(abs(endposition - startposition))")
                 Text("スクロール時間：\(ScrollingTime)")
                 Text("スクロール速度：\(abs(ScrollSpeed))")
+                Text("テキスト削除回数：\(Delete)")
 //                Text("スクロール間隔：\(UnScrollTimeCount)")
             }
         }
@@ -357,7 +379,6 @@ struct Choice : View {
                         .sink { _ in
                             TimeCount += 0.1
                         }
-                    //
                     let db = Firestore.firestore()
                     db.collection("messages").addDocument(data: ["text": "左の画像"]) { err in
                         if let e = err {
